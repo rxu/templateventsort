@@ -66,7 +66,7 @@ class event extends \Twig\TokenParser\AbstractTokenParser
 		 *			}
 		 *		}
 		 *
-		 * @since 1.0.0-dev
+		 * @since 1.0.0
 		 */
 		if ($this->phpbb_dispatcher)
 		{
