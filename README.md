@@ -27,7 +27,7 @@ Example:
 			$event->update_subarray('template_event_priority_array', 
 				'vendor_name', [
 					'event/navbar_header_quick_links_after' => -1,
-				]);
+			]);
 		}
 	}
 ```
