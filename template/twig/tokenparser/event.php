@@ -1,0 +1,107 @@
+<?php
+/**
+ *
+ * Template event prioritizing extension for the phpBB Forum Software package.
+ *
+ * @copyright (c) 2025, rxu, https://www.phpbbguru.net
+ * @license GNU General Public License, version 2 (GPL-2.0)
+ *
+ */
+
+namespace rxu\templateventsort\template\twig\tokenparser;
+
+class event extends \Twig\TokenParser\AbstractTokenParser
+{
+	/** @var \phpbb\template\twig\environment */
+	protected $environment;
+
+	/** @var \phpbb\event\dispatcher_interface */
+	protected $phpbb_dispatcher;
+
+	/** @var array */
+	protected $template_event_priority_array;
+
+	/**
+	 * Constructor
+	 *
+	 * @param \phpbb\template\twig\environment $environment
+	 */
+	public function __construct(\phpbb\template\twig\environment $environment)
+	{
+		$this->environment = $environment;
+		$this->phpbb_dispatcher = $this->environment->get_phpbb_dispatcher();
+
+		$template_event_priority_array = [];
+		/**
+		 * Allow assigning priority to template events
+		 *
+		 * The higher number - the higher tempate event listener priority value is.
+		 * In case of equal priority values, corresponding template event listeners will be handled in default compilation order.
+		 * If not set, template event listener priority will be assigned to the value of 0.
+		 *
+		 * @event rxu.templateventsort.twig_event_tokenparser_constructor
+		 * @var	array	template_event_priority_array	Array with template event priority assignments per extension namespace
+		 *		Usage:
+		 *		'<author>_<extension_name>' => [
+		 *			'event/<template_event_name>'		=> priority_number,
+		 *		],
+		 *
+		 *		Example:
+		 *		class template_event_order implements EventSubscriberInterface
+		 *		{
+		 *			static public function getSubscribedEvents()
+		 *			{
+		 *				return [
+		 *					'rxu.templateventsort.twig_event_tokenparser_constructor'	=> 'set_template_event_priority',
+		 *				];
+		 *			}
+		 *
+		 *			public function set_template_event_priority($event)
+		 *			{
+		 *				$template_event_priority_array = $event['template_event_priority_array'];
+		 *				$template_event_priority_array['vendor_name'] = [
+		 *					'event/navbar_header_quick_links_after' => -1,
+		 *				];
+		 *				$event['template_event_priority_array'] = $template_event_priority_array;
+		 *			}
+		 *		}
+		 *
+		 * @since 1.0.0-dev
+		 */
+		if ($this->phpbb_dispatcher)
+		{
+			$vars = ['template_event_priority_array'];
+			extract($this->phpbb_dispatcher->trigger_event('rxu.templateventsort.twig_event_tokenparser_constructor', compact($vars)));
+		}
+
+		$this->template_event_priority_array = $template_event_priority_array;
+		unset($template_event_priority_array);
+	}
+
+	/**
+	 * Parses a token and returns a node.
+	 *
+	 * @param \Twig\Token $token A Twig\Token instance
+	 *
+	 * @return \Twig\Node\Node A Twig\Node instance
+	 */
+	public function parse(\Twig\Token $token)
+	{
+		$expr = $this->parser->getExpressionParser()->parseExpression();
+
+		$stream = $this->parser->getStream();
+		$stream->expect(\Twig\Token::BLOCK_END_TYPE);
+
+		return new \rxu\templateventsort\template\twig\node\event($expr, $this->environment, $token->getLine(), $this->getTag(), $this->template_event_priority_array);
+	}
+
+	/**
+	 * Gets the tag name associated with this token parser.
+	 *
+	 * @return string The tag name
+	 */
+	public function getTag()
+	{
+		return 'EVENT';
+	}
+}

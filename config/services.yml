@@ -1,0 +1,10 @@
+services:
+    rxu.templateventsort.template.twig.environment:
+        decorates: template.twig.environment
+        parent: template.twig.environment
+        class: rxu\templateventsort\template\twig\environment
+
+    rxu.templateventsort.template.twig.extensions:
+        decorates: template.twig.extensions.phpbb
+        parent: template.twig.extensions.phpbb
+        class: rxu\templateventsort\template\twig\extension
