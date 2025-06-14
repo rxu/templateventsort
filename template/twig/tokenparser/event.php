@@ -15,9 +15,6 @@ class event extends \Twig\TokenParser\AbstractTokenParser
 	/** @var \phpbb\template\twig\environment */
 	protected $environment;
 
-	/** @var \phpbb\event\dispatcher_interface */
-	protected $phpbb_dispatcher;
-
 	/** @var array */
 	protected $template_event_priority_array;
 
@@ -29,7 +26,7 @@ class event extends \Twig\TokenParser\AbstractTokenParser
 	public function __construct(\phpbb\template\twig\environment $environment)
 	{
 		$this->environment = $environment;
-		$this->phpbb_dispatcher = $this->environment->get_phpbb_dispatcher();
+		$phpbb_dispatcher = $this->environment->get_phpbb_dispatcher();
 
 		$template_event_priority_array = [];
 		/**
@@ -39,10 +36,10 @@ class event extends \Twig\TokenParser\AbstractTokenParser
 		 * @var	array	template_event_priority_array	Array with template event priority assignments per extension namespace
 		 * @since 1.0.0
 		 */
-		if ($this->phpbb_dispatcher)
+		if ($phpbb_dispatcher)
 		{
 			$vars = ['template_event_priority_array'];
-			extract($this->phpbb_dispatcher->trigger_event('rxu.templateventsort.twig_event_tokenparser_constructor', compact($vars)));
+			extract($phpbb_dispatcher->trigger_event('rxu.templateventsort.twig_event_tokenparser_constructor', compact($vars)));
 		}
 
 		$this->template_event_priority_array = $template_event_priority_array;
